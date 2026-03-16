@@ -11,41 +11,32 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #e1e1e1; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
         
-        /* Setup */
         .overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .card { background: var(--card); padding: 2.5rem; border-radius: 16px; text-align: center; width: 340px; border: 1px solid var(--border); }
         input { background: #1c2126; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; width: 90%; margin-bottom: 1rem; outline: none; }
         button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 15px; font-weight: 600; transition: 0.2s; width: 100%; margin-bottom: 0.5rem; }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-exit { background: var(--danger); color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
 
         header { padding: 0.8rem 1.5rem; background: var(--card); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         #main-container { flex: 1; display: flex; overflow: hidden; }
 
-        /* Sidebar */
         #sidebar { width: 240px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; }
         .user-row { padding: 10px; border-bottom: 1px solid #222; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Content */
-        #content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         #chat-area { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: #1c2126; padding: 10px 15px; border-radius: 12px; max-width: 80%; border: 1px solid var(--border); word-wrap: break-word; }
+        .msg { background: #1c2126; padding: 10px 15px; border-radius: 12px; max-width: 80%; border: 1px solid var(--border); }
 
-        #voice-ui { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .voice-box { background: var(--card); padding: 2.5rem; border-radius: 24px; text-align: center; border: 1px solid var(--border); }
-
-        .btn-round { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #2d3339; color: white; flex-shrink: 0; font-size: 1.2rem; }
         #controls { padding: 1rem; background: var(--card); display: flex; gap: 12px; align-items: center; border-top: 1px solid var(--border); }
-        #msg-input { margin-bottom: 0; flex: 1; border-radius: 20px; }
-        .status-msg { font-size: 0.85rem; margin-top: 8px; color: var(--danger); font-weight: bold; }
+        .btn-round { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #2d3339; color: white; flex-shrink: 0; font-size: 1.2rem; }
+        
+        #file-preview { padding: 10px 20px; background: #1c2126; border-top: 1px solid var(--border); font-size: 0.8rem; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-    <!-- SETUP SCREEN -->
     <div id="setup-screen" class="overlay">
         <div class="card">
-            <h1 style="margin:0 0 1.5rem 0;">MMM-TEK</h1>
+            <h1>MMM-TEK</h1>
             <div id="step-user">
                 <input type="text" id="username" placeholder="Your Name">
                 <button class="btn-primary" id="btn-host-view">Create Room</button>
@@ -58,18 +49,16 @@
             <div id="step-join" class="hidden">
                 <input type="text" id="target-id" placeholder="Paste Room ID">
                 <button class="btn-primary" id="btn-connect">Connect Now</button>
-                <div id="join-error" class="status-msg hidden">Room error or name taken.</div>
-                <button onclick="resetApp()" style="background:none; color:#666; font-size:0.7rem;">Back</button>
+                <div id="join-error" class="status-msg hidden" style="color:var(--danger); margin-bottom:10px;">Error connecting...</div>
             </div>
         </div>
     </div>
 
     <header>
         <span style="font-weight: 800; color: var(--accent);">MMM-TEK</span>
-        <div id="active-room-info" class="hidden" style="display:flex; align-items:center;">
-            ID: <b id="room-id-txt" style="margin: 0 10px;"></b>
-            <button id="btn-copy" style="width:auto; padding:3px 10px; font-size:0.7rem; margin-right:10px;">COPY</button>
-            <button class="btn-exit" onclick="resetApp()">EXIT</button>
+        <div id="active-info" class="hidden">
+            ID: <b id="room-id-txt"></b>
+            <button onclick="resetApp()" style="background:var(--danger); color:white; width:auto; padding:3px 10px; margin-left:10px;">EXIT</button>
         </div>
     </header>
 
@@ -77,27 +66,27 @@
         <aside id="sidebar">
             <div style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 12px;">ONLINE USERS</div>
             <div id="user-list"></div>
-            <div id="host-panel" class="hidden" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 15px;">
-                <button onclick="muteAll(true)" style="background:var(--danger); font-size: 0.75rem; color:white;">SILENCE ALL</button>
-            </div>
         </aside>
 
-        <main id="content-area">
-            <div id="voice-ui" class="hidden">
-                <div class="voice-box">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🎙️</div>
-                    <h3>Voice Active</h3>
-                    <button id="btn-self-mute" class="btn-primary" style="background:var(--success); width: 180px;" onclick="toggleSelfMute()">Mic: ON</button>
+        <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+            <div id="voice-ui" class="hidden" style="flex:1; display:flex; align-items:center; justify-content:center;">
+                <div style="text-align:center; background:var(--card); padding:2rem; border-radius:20px;">
+                    <div style="font-size:3rem;">🎙️</div>
+                    <button id="btn-self-mute" class="btn-primary" onclick="toggleSelfMute()">Mic: ON</button>
                 </div>
             </div>
 
             <div id="chat-section" style="display: flex; flex-direction: column; flex: 1;">
                 <div id="chat-area"></div>
+                <div id="file-preview" class="hidden">
+                    <span id="file-name-info"></span>
+                    <button onclick="clearFile()" style="width:auto; background:none; color:var(--danger); padding:0;">[Cancel]</button>
+                </div>
                 <div id="controls">
                     <input type="file" id="file-input" class="hidden">
-                    <button onclick="document.getElementById('file-input').click()" id="btn-clip" class="btn-round">📎</button>
-                    <input type="text" id="msg-input" placeholder="Type a message...">
-                    <button id="btn-send" class="btn-primary" style="width: auto; padding: 0 25px;">SEND</button>
+                    <button onclick="document.getElementById('file-input').click()" class="btn-round">📎</button>
+                    <input type="text" id="msg-input" placeholder="Message...">
+                    <button id="btn-send" class="btn-primary" style="width:auto; padding:0 20px;">SEND</button>
                 </div>
             </div>
         </main>
@@ -106,62 +95,25 @@
     <audio id="remote-audio" autoplay></audio>
 
     <script>
-        let peer = null, myStream = null, myName = "", isHost = false, mode = "";
+        let peer = null, myStream = null, myName = "", isHost = false, mode = "", pendingFile = null;
         let conns = {};
-        let selfMuted = false, hostMuted = false;
 
-        // --- FUNCIÓN DE RESET TOTAL ---
         function resetApp() {
-            // 1. Cerrar conexiones
-            Object.values(conns).forEach(c => { if(c.conn) c.conn.close(); });
-            conns = {};
-            
-            // 2. Destruir objeto Peer
-            if(peer) { peer.destroy(); peer = null; }
-            
-            // 3. Parar micrófono
-            if(myStream) {
-                myStream.getTracks().forEach(track => track.stop());
-                myStream = null;
-            }
-
-            // 4. Limpiar UI
-            document.getElementById('chat-area').innerHTML = "";
-            document.getElementById('user-list').innerHTML = "";
-            document.getElementById('join-error').classList.add('hidden');
-            document.getElementById('active-room-info').classList.add('hidden');
-            document.getElementById('host-panel').classList.add('hidden');
-            
-            // 5. Volver al inicio
-            show('step-user');
-            document.getElementById('setup-screen').classList.remove('hidden');
-            
-            // Forzar recarga si algo queda en memoria (opcional pero seguro)
-            // location.reload(); 
-        }
-
-        function updateUIVisibility() {
-            const isVoice = (mode === 'voice');
-            document.getElementById('chat-section').classList.toggle('hidden', isVoice);
-            document.getElementById('voice-ui').classList.toggle('hidden', !isVoice);
-            document.getElementById('active-room-info').classList.remove('hidden');
+            Object.values(conns).forEach(c => c.conn.close());
+            if(peer) peer.destroy();
+            location.reload(); // Recarga limpia para asegurar nueva sesión
         }
 
         function start(host, m, tid = null) {
             isHost = host; mode = m;
-            myName = document.getElementById('username').value.trim() || "User" + Math.floor(Math.random()*100);
-            
-            // Evitar duplicados de Peer si ya existe
-            if(peer) peer.destroy();
-
+            myName = document.getElementById('username').value.trim() || "User";
             peer = new Peer(isHost ? Math.floor(100000 + Math.random() * 900000).toString() : null);
 
             peer.on('open', id => {
                 if(isHost) {
                     document.getElementById('setup-screen').classList.add('hidden');
+                    document.getElementById('active-info').classList.remove('hidden');
                     document.getElementById('room-id-txt').innerText = id;
-                    document.getElementById('host-panel').classList.toggle('hidden', !isHost);
-                    updateUIVisibility();
                     if(mode === 'voice') startVoice();
                     updateUsers();
                 } else {
@@ -170,23 +122,7 @@
                 }
             });
 
-            peer.on('connection', conn => {
-                const clientName = conn.metadata.name;
-                if (isHost && Object.values(conns).some(c => c.name === clientName)) {
-                    setTimeout(() => {
-                        conn.send({ type: 'error', msg: 'Name taken.' });
-                        setTimeout(() => conn.close(), 500);
-                    }, 500);
-                    return;
-                }
-                handle(conn);
-            });
-
-            peer.on('error', err => {
-                if(err.type === 'peer-unavailable') showError("Room not found.");
-                else if(err.type === 'disconnected') peer.reconnect();
-            });
-
+            peer.on('connection', handle);
             peer.on('call', async call => {
                 const s = await navigator.mediaDevices.getUserMedia({audio:true});
                 call.answer(s);
@@ -197,113 +133,89 @@
         function handle(c) {
             const onOpen = () => {
                 document.getElementById('setup-screen').classList.add('hidden');
-                conns[c.peer] = { conn: c, name: c.metadata ? c.metadata.name : "Anonymous", hostMuted: false };
-                c.send({ type: 'sync-request' });
+                document.getElementById('active-info').classList.remove('hidden');
+                conns[c.peer] = { conn: c, name: c.metadata ? c.metadata.name : "Guest" };
+                if(isHost) c.send({ type: 'sync', mode: mode });
                 updateUsers();
             };
 
             if (c.open) onOpen(); else c.on('open', onOpen);
 
             c.on('data', d => {
-                if(d.type === 'error') { showError(d.msg); resetApp(); }
-                else if(d.type === 'sync-request' && isHost) c.send({ type: 'sync', mode: mode });
-                else if(d.type === 'sync') { 
-                    mode = d.mode; updateUIVisibility();
+                if(d.type === 'sync') { 
+                    mode = d.mode; 
                     if(mode === 'voice') startVoice(c.peer); 
+                    document.getElementById('chat-section').classList.toggle('hidden', mode === 'voice');
+                    document.getElementById('voice-ui').classList.toggle('hidden', mode !== 'voice');
                 }
                 else if(d.type === 'msg') { addMsg(d.user, d.text, d.file); if(isHost) broadcast(d, c.peer); }
-                else if(d.type === 'mute-cmd') applyHostMute(d.status);
             });
+
             c.on('close', () => { delete conns[c.peer]; updateUsers(); });
         }
 
         async function startVoice(tid = null) {
-            try {
-                myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                updateUIVisibility();
-                if (!isHost && tid) {
-                    const call = peer.call(tid, myStream);
-                    call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
-                }
-            } catch (e) { console.error("Mic error"); }
-        }
-
-        function updateUsers() {
-            const list = document.getElementById('user-list');
-            list.innerHTML = `<div class="user-row"><span><b>${myName} (You)</b></span></div>`;
-            Object.keys(conns).forEach(id => {
-                const muteBtn = isHost ? `<button onclick="toggleUserMute('${id}')" style="width:auto; padding:2px 6px; font-size:0.6rem; background:#333; color:white;">${conns[id].hostMuted ? 'UNMUTE':'MUTE'}</button>` : '';
-                list.innerHTML += `<div class="user-row"><span>${conns[id].name}</span>${muteBtn}</div>`;
-            });
+            myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            document.getElementById('chat-section').classList.add('hidden');
+            document.getElementById('voice-ui').classList.remove('hidden');
+            if (!isHost && tid) {
+                const call = peer.call(tid, myStream);
+                call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
+            }
         }
 
         const send = () => {
-            if(hostMuted) return;
             const input = document.getElementById('msg-input');
-            if(!input.value.trim()) return;
-            const d = { type: 'msg', user: myName, text: input.value };
-            addMsg("You", input.value);
-            if(isHost) broadcast(d); else if(Object.keys(conns).length) Object.values(conns)[0].conn.send(d);
-            input.value = "";
+            if(!input.value.trim() && !pendingFile) return;
+            const d = { type: 'msg', user: myName, text: input.value, file: pendingFile };
+            addMsg("You", input.value, pendingFile);
+            if(isHost) broadcast(d); else Object.values(conns).forEach(c => c.conn.send(d));
+            input.value = ""; clearFile();
         };
 
         function addMsg(user, text, file) {
             const div = document.createElement('div');
             div.className = "msg";
-            div.innerHTML = `<small style="color:var(--accent); font-weight:bold;">${user}</small><br>${text}`;
+            div.innerHTML = `<b>${user}:</b> ${text}`;
+            if(file) {
+                const blob = new Blob([file.blob], {type: file.type});
+                const url = URL.createObjectURL(blob);
+                div.innerHTML += `<br><a href="${url}" download="${file.name}" style="color:var(--success); font-weight:bold;">📂 Download: ${file.name}</a>`;
+            }
             document.getElementById('chat-area').appendChild(div);
             document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
         }
 
-        function showError(m) {
-            const errDiv = document.getElementById('join-error');
-            errDiv.innerText = m; errDiv.classList.remove('hidden');
-        }
-
-        window.toggleUserMute = (id) => {
-            conns[id].hostMuted = !conns[id].hostMuted;
-            conns[id].conn.send({ type: 'mute-cmd', status: conns[id].hostMuted });
-            updateUsers();
-        };
-
-        window.muteAll = (status) => {
-            Object.keys(conns).forEach(id => {
-                conns[id].hostMuted = status;
-                conns[id].conn.send({ type: 'mute-cmd', status: status });
+        function updateUsers() {
+            const list = document.getElementById('user-list');
+            list.innerHTML = `<div class="user-row"><b>${myName} (You)</b></div>`;
+            Object.values(conns).forEach(u => {
+                list.innerHTML += `<div class="user-row">${u.name}</div>`;
             });
-            updateUsers();
-        };
-
-        function applyHostMute(status) {
-            hostMuted = status;
-            document.getElementById('msg-input').disabled = status;
-            if(myStream) myStream.getAudioTracks()[0].enabled = !status && !selfMuted;
-            updateSelfMuteUI();
         }
 
-        window.toggleSelfMute = () => {
-            if(hostMuted) return;
-            selfMuted = !selfMuted;
-            if(myStream) myStream.getAudioTracks()[0].enabled = !selfMuted;
-            updateSelfMuteUI();
-        };
-
-        function updateSelfMuteUI() {
-            const btn = document.getElementById('btn-self-mute');
-            btn.innerText = (selfMuted || hostMuted) ? "Mic: OFF" : "Mic: ON";
-            btn.style.background = (selfMuted || hostMuted) ? "var(--danger)" : "var(--success)";
+        function broadcast(d, skip = null) {
+            Object.keys(conns).forEach(id => { if(id !== skip) conns[id].conn.send(d); });
         }
 
-        function broadcast(d, skip = null) { Object.keys(conns).forEach(id => { if(id !== skip) conns[id].conn.send(d); }); }
+        document.getElementById('file-input').onchange = (e) => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = () => {
+                pendingFile = { name: f.name, type: f.type, blob: r.result };
+                document.getElementById('file-preview').classList.remove('hidden');
+                document.getElementById('file-name-info').innerText = "Ready: " + f.name;
+            };
+            r.readAsArrayBuffer(f);
+        };
 
+        function clearFile() { pendingFile = null; document.getElementById('file-preview').classList.add('hidden'); }
         document.getElementById('btn-send').onclick = send;
-        document.getElementById('msg-input').onkeydown = (e) => { if(e.key === 'Enter') send(); };
-        document.getElementById('btn-host-view').onclick = () => { if(document.getElementById('username').value) show('step-host-config'); };
-        document.getElementById('btn-join-view').onclick = () => { if(document.getElementById('username').value) show('step-join'); };
+        document.getElementById('btn-host-view').onclick = () => show('step-host-config');
+        document.getElementById('btn-join-view').onclick = () => show('step-join');
         document.getElementById('mode-chat').onclick = () => start(true, 'chat');
         document.getElementById('mode-voice').onclick = () => start(true, 'voice');
         document.getElementById('btn-connect').onclick = () => start(false, null, document.getElementById('target-id').value);
-        document.getElementById('btn-copy').onclick = () => navigator.clipboard.writeText(document.getElementById('room-id-txt').innerText);
         function show(id) { document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     </script>
 </body>
