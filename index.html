@@ -2,153 +2,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Classroom</title>
-    <!-- ICONO DE LA PESTAÑA -->
     <link rel="icon" type="image/png" href="https://mmm-tek.github.io/classroom.png">
-    
     <style>
         :root { --primary: #1a73e8; --bg: #ffffff; --text: #3c4043; --border: #dadce0; --gray: #f8f9fa; --red: #d93025; --green: #1e8e3e; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* Header */
         header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; border-bottom: 1px solid var(--border); background: white; height: 60px; }
         .brand-container { display: flex; align-items: center; gap: 12px; }
         .brand-logo { width: 32px; height: 32px; object-fit: contain; }
         header .brand { font-size: 22px; color: #5f6368; font-weight: bold; }
-        
-        /* Room Code */
         .code-area { display: flex; align-items: center; gap: 10px; background: #3c4043; padding: 6px 12px; border-radius: 8px; color: white; }
         .blur-code { filter: blur(5px); transition: 0.3s; cursor: help; font-family: monospace; font-size: 1.1rem; }
         .code-area:hover .blur-code { filter: blur(0); }
         .copy-btn { background: var(--primary); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 4px 8px; font-size: 10px; font-weight: bold; }
-
         .main { display: flex; flex: 1; overflow: hidden; }
         .sidebar { width: 280px; border-right: 1px solid var(--border); background: white; display: flex; flex-direction: column; }
-        .sidebar-h { padding: 20px; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--primary); font-size: 0.9rem; text-transform: uppercase; }
-        .user-item { padding: 12px 20px; border-bottom: 1px solid #f1f1f1; font-size: 14px; display: flex; align-items: center; gap: 10px; }
-        .user-item::before { content: "●"; color: var(--green); font-size: 18px; }
-
-        /* Chat Area */
-        #chat-area { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; background: #f8f9fa; }
-        .msg-container { margin-bottom: 5px; }
-        .msg-u { font-weight: bold; color: var(--primary); font-size: 12px; margin-left: 10px; margin-bottom: 2px; display: block; }
-        .msg-t { background: white; padding: 10px 16px; border-radius: 18px; border: 1px solid var(--border); display: inline-block; font-size: 15px; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Files */
-        .f-card { margin-top: 8px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; max-width: 250px; background: white; }
-        .f-img { width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block; }
-        .f-info { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; background: #fdfdfd; font-size: 12px; border-top: 1px solid #eee; }
-        .f-dl { color: var(--primary); text-decoration: none; font-weight: bold; }
-
-        /* Input */
+        .sidebar-h { padding: 15px; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .user-item { padding: 10px 15px; border-bottom: 1px solid #f1f1f1; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        #chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
+        .msg-t { background: white; padding: 8px 12px; border-radius: 15px; border: 1px solid var(--border); display: inline-block; font-size: 14px; max-width: 80%; }
         .input-p { padding: 15px 30px; border-top: 1px solid var(--border); background: white; }
         .input-w { display: flex; gap: 12px; background: #f1f3f4; padding: 10px 20px; border-radius: 25px; align-items: center; }
-        .input-w input { flex: 1; border: none; background: transparent; outline: none; font-size: 15px; }
-        
-        /* Setup */
+        .input-w input { flex: 1; border: none; background: transparent; outline: none; }
         .overlay { position: fixed; inset: 0; background: #f1f3f4; z-index: 100; display: flex; align-items: center; justify-content: center; }
-        .card { width: 350px; text-align: center; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .card { width: 350px; text-align: center; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .hidden { display: none !important; }
-        button.p-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
-        button.p-btn:hover { background: #1765cc; }
-        .sys-m { text-align: center; color: #80868b; font-size: 12px; margin: 8px 0; }
-        .setup-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; outline-color: var(--primary); }
-        .voice-banner { background: var(--green); color: white; padding: 6px; text-align: center; font-size: 12px; font-weight: bold; display: none; }
-    /* Nuevo estilo para la pantalla de voz */
-    .voice-only-view {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: #f8f9fa;
-        text-align: center;
-    }
-    .avatar-circle {
-    width: 120px;
-    height: 120px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-        font-size: 50px;
-        margin-bottom: 20px;
-        box-shadow: 0 0 20px rgba(26, 115, 232, 0.4);
-        animation: wave 2s infinite;
-    }
-    @keyframes wave {
-        0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }
-        70% { box-shadow: 0 0 0 20px rgba(26, 115, 232, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0); }
-    }
-</style>
+        button.p-btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        .setup-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 8px; }
+        .btn-sm { border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; color: white; }
+        .btn-mute { background: var(--red); }
+        .btn-unmute { background: var(--green); }
+        .voice-controls { padding: 10px; border-bottom: 1px solid var(--border); display: none; text-align: center; }
+    </style>
 </head>
 <body>
 
     <div id="setup-screen" class="overlay">
         <div class="card">
-            <!-- LOGO EN EL SETUP -->
-            <img src="https://mmm-tek.github.io/classroom.png" alt="Logo" style="width: 64px; margin-bottom: 15px;">
-            <h1 style="color: #3c4043; margin: 0 0 30px 0; font-size: 24px;">MMM-Chat</h1>
-            
+            <img src="https://mmm-tek.github.io/classroom.png" style="width: 50px; margin-bottom: 10px;">
+            <h2 style="color: #3c4043; margin-bottom: 20px;">MMM-Chat</h2>
             <div id="step-1">
-                <input type="text" id="username" class="setup-input" placeholder="Enter your name">
+                <input type="text" id="username" class="setup-input" placeholder="Your name...">
                 <button class="p-btn" id="btn-host-view">Host Room</button>
-                <button id="btn-join-view" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-top:20px; font-size: 14px; font-weight: bold;">Join a Room</button>
+                <button id="btn-join-view" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-top:15px; font-weight:bold;">Join Room</button>
             </div>
-            
             <div id="step-host-config" class="hidden">
-                <input type="text" id="chat-name-input" class="setup-input" placeholder="Room Name (e.g. Science Class)">
-                <button class="p-btn" id="btn-go-to-mode">Continue</button>
+                <input type="text" id="chat-name-input" class="setup-input" placeholder="Room Name">
+                <button class="p-btn" id="btn-go-to-mode">Next</button>
             </div>
-
             <div id="step-join" class="hidden">
-                <input type="text" id="target-id" placeholder="Enter 6-digit code" maxlength="6" class="setup-input" style="text-align: center; letter-spacing: 4px; font-weight: bold;">
-                <button class="p-btn" id="btn-connect">Connect</button>
+                <input type="text" id="target-id" placeholder="6-digit code" class="setup-input">
+                <button class="p-btn" id="btn-connect">Enter</button>
             </div>
-
             <div id="step-mode" class="hidden">
-                <p style="font-size: 14px; color: #5f6368; margin-bottom: 20px;">Select Room Mode:</p>
-                <button class="p-btn" id="mode-chat" style="margin-bottom: 12px;">💬 Chat Mode</button>
-                <button class="p-btn" id="mode-voice" style="background: var(--green);">🎤 Voice Mode</button>
+                <button class="p-btn" id="mode-chat" style="margin-bottom: 10px;">💬 Chat</button>
+                <button class="p-btn" id="mode-voice" style="background: var(--green);">🎤 Voice</button>
             </div>
         </div>
     </div>
 
-    <div id="voice-indicator" class="voice-banner">🎤 MIC ACTIVE • VOICE MODE</div>
-    
     <header>
         <div class="brand-container">
-            <img src="https://mmm-tek.github.io/classroom.png" class="brand-logo" alt="Logo">
+            <img src="https://mmm-tek.github.io/classroom.png" class="brand-logo">
             <div class="brand" id="chat-brand-name">MMM-Chat</div>
         </div>
         <div id="host-badge" class="hidden">
-            <div class="code-area">
-                <span class="blur-code" id="room-id-txt">000000</span>
-                <button class="copy-btn" id="btn-copy">COPY</button>
-            </div>
+            <div class="code-area"><span class="blur-code" id="room-id-txt">000000</span><button class="copy-btn" id="btn-copy">COPY</button></div>
         </div>
     </header>
 
     <div class="main">
         <div class="sidebar">
-            <div class="sidebar-h">Participants</div>
+            <div class="sidebar-h">
+                Participants
+                <div id="host-global-ctrls" class="hidden">
+                    <button class="btn-sm btn-mute" onclick="muteAll(true)">MUTE ALL</button>
+                    <button class="btn-sm btn-unmute" onclick="muteAll(false)">UNMUTE ALL</button>
+                </div>
+            </div>
             <div id="user-list"></div>
         </div>
         <div style="flex:1; display:flex; flex-direction:column;">
+            <div id="voice-ui" class="voice-controls">
+                <button id="btn-self-mute" class="btn-sm btn-mute" onclick="toggleSelfMute()">🎤 Mute My Mic</button>
+            </div>
             <div id="chat-area"></div>
-            <div id="file-preview-area" style="display:none; padding: 8px 30px; background: #e8f0fe; font-size: 12px; border-top: 1px solid var(--border);">
-                <span id="file-name-display" style="font-weight: bold;"></span> 
-                <button onclick="clearFile()" style="color:var(--red); border:none; background:none; cursor:pointer; font-weight:bold; margin-left:10px;">Remove</button>
+            <div id="file-preview-area" style="display:none; padding: 8px 20px; background: #e8f0fe; font-size: 11px;">
+                <span id="file-name-display"></span>
+                <label><input type="checkbox" id="lock-download"> Host-only DL</label>
+                <button onclick="clearFile()" style="color:var(--red); border:none; background:none; cursor:pointer;">(x)</button>
             </div>
             <div class="input-p">
                 <div class="input-w">
-                    <label style="cursor:pointer; font-size: 18px; filter: grayscale(1);">📎<input type="file" id="file-input" class="hidden"></label>
-                    <input type="text" id="msg-input" placeholder="Write a message...">
-                    <button id="btn-send" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer; padding: 0 10px;">SEND</button>
+                    <label style="cursor:pointer;">📎<input type="file" id="file-input" class="hidden"></label>
+                    <input type="text" id="msg-input" placeholder="Type and Enter...">
+                    <button id="btn-send" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer;">SEND</button>
                 </div>
             </div>
         </div>
@@ -158,58 +106,28 @@
 
     <script src="peerjs.min.js"></script>
     <script>
-        let peer, conns = {}, myName, isHost = false, mode = "", myStream = null, pendingFile = null;
-        const chat = document.getElementById('chat-area');
-        const list = document.getElementById('user-list');
-
-        function sys(m) {
-            const div = document.createElement('div');
-            div.className = "sys-m"; div.innerText = m;
-            chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
-        }
+        let peer, conns = {}, myName, isHost = false, mode = "", myStream = null, pendingFile = null, hostMuted = false, selfMuted = false;
+        const chat = document.getElementById('chat-area'), list = document.getElementById('user-list');
 
         function addMsg(u, t, f = null) {
             const div = document.createElement('div');
-            div.className = "msg-container";
-            let fileHtml = '';
-            if(f) {
-                const blob = new Blob([f.blob]);
-                const url = URL.createObjectURL(blob);
-                fileHtml = `<div class="f-card">
-                    ${f.type.startsWith('image/') ? `<img src="${url}" class="f-img">` : `<div style="padding:30px;text-align:center;background:#eee;">📄 Document</div>`}
-                    <div class="f-info"><span>${f.name}</span><a href="${url}" download="${f.name}" class="f-dl">Download</a></div>
-                </div>`;
-            }
-            div.innerHTML = `<span class="msg-u">${u}</span><div class="msg-t">${t}</div>${fileHtml}`;
+            const blob = f ? new Blob([f.blob]) : null;
+            const url = f ? URL.createObjectURL(blob) : '';
+            const canDl = f ? (!f.locked || isHost || u === "You") : false;
+            div.innerHTML = `<small><b>${u}</b></small><br><div class="msg-t">${t}${f ? `<br><small>${f.name} ${canDl ? `<a href="${url}" download="${f.name}">[DL]</a>` : '[🔒 Locked]'}</small>` : ''}</div>`;
             chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
         }
 
-async function startVoice(tid = null) {
-    try {
-        myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        document.getElementById('voice-indicator').style.display = 'block';
-
-        // OCULTAR CHAT Y MOSTRAR INTERFAZ DE VOZ
-        document.getElementById('chat-area').innerHTML = `
-            <div class="voice-only-view">
-                <div class="avatar-circle">🎤</div>
-                <h2 style="color:var(--text)">Voice Call Active</h2>
-                <p style="color:#5f6368">Microphone is ON. Others can hear you.</p>
-            </div>
-        `;
-        // Escondemos el panel de escribir y adjuntar
-        document.querySelector('.input-p').style.display = 'none';
-        document.getElementById('file-preview-area').style.display = 'none';
-
-        if (!isHost && tid) {
-            const call = peer.call(tid, myStream);
-            call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
+        async function startVoice(tid = null) {
+            try {
+                myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                document.getElementById('voice-ui').style.display = 'block';
+                if (!isHost && tid) {
+                    const call = peer.call(tid, myStream);
+                    call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
+                }
+            } catch (e) { console.error("Mic error"); }
         }
-    } catch (e) { 
-        sys("Microphone access denied. You can only listen."); 
-    }
-}
-
 
         function start(host, m, tid = null) {
             isHost = host; mode = m;
@@ -218,6 +136,7 @@ async function startVoice(tid = null) {
                 document.getElementById('setup-screen').classList.add('hidden');
                 if(isHost) {
                     document.getElementById('host-badge').classList.remove('hidden');
+                    document.getElementById('host-global-ctrls').classList.remove('hidden');
                     document.getElementById('room-id-txt').innerText = id;
                     if(mode === 'voice') startVoice();
                 } else handle(peer.connect(tid));
@@ -233,69 +152,94 @@ async function startVoice(tid = null) {
 
         function handle(c) {
             c.on('open', () => {
-                conns[c.peer] = { conn: c, name: "..." };
+                conns[c.peer] = { conn: c, name: "...", hostMuted: false };
                 c.send({ type: 'hi', name: myName, mode: mode, chatName: document.getElementById('chat-brand-name').innerText });
             });
             c.on('data', d => {
-                if(d.type === 'hi') {
-                    conns[c.peer].name = d.name;
-                    if(isHost) c.send({ type: 'sync', mode: mode, chatName: document.getElementById('chat-brand-name').innerText });
-                    sys(d.name + " joined."); updateUsers();
-                } else if(d.type === 'sync') {
-                    mode = d.mode; document.getElementById('chat-brand-name').innerText = d.chatName;
-                    document.getElementById('page-title').innerText = d.chatName + " | Classroom";
-                    if(mode === 'voice') startVoice(c.peer);
-                } else if(d.type === 'msg') {
-                    addMsg(d.user, d.text, d.file);
-                    if(isHost) broadcast(d, c.peer);
-                }
+                if(d.type === 'hi') { conns[c.peer].name = d.name; if(isHost) c.send({ type: 'sync', mode: mode, chatName: document.getElementById('chat-brand-name').innerText }); updateUsers(); }
+                else if(d.type === 'sync') { mode = d.mode; document.getElementById('chat-brand-name').innerText = d.chatName; if(mode === 'voice') startVoice(c.peer); }
+                else if(d.type === 'msg') { addMsg(d.user, d.text, d.file); if(isHost) broadcast(d, c.peer); }
+                else if(d.type === 'mute-cmd') applyHostMute(d.status);
             });
             c.on('close', () => { delete conns[c.peer]; updateUsers(); });
         }
 
-        function broadcast(d, skip = null) {
-            Object.keys(conns).forEach(id => { if(id !== skip) conns[id].conn.send(d); });
+        function applyHostMute(status) {
+            hostMuted = status;
+            const input = document.getElementById('msg-input');
+            input.disabled = status;
+            input.placeholder = status ? "Muted by Host" : "Type and Enter...";
+            if(myStream) myStream.getAudioTracks()[0].enabled = !status && !selfMuted;
+            updateSelfMuteUI();
         }
+
+        window.toggleSelfMute = () => {
+            if(hostMuted) return; // Si el host te muteó, no puedes desmutearte
+            selfMuted = !selfMuted;
+            if(myStream) myStream.getAudioTracks()[0].enabled = !selfMuted;
+            updateSelfMuteUI();
+        };
+
+        function updateSelfMuteUI() {
+            const btn = document.getElementById('btn-self-mute');
+            if(hostMuted) { btn.innerText = "🎤 MUTED BY HOST"; btn.className = "btn-sm btn-mute"; }
+            else {
+                btn.innerText = selfMuted ? "🎤 Mic is OFF" : "🎤 Mic is ON";
+                btn.className = selfMuted ? "btn-sm btn-mute" : "btn-sm btn-unmute";
+            }
+        }
+
+        window.toggleUserMute = (id) => {
+            conns[id].hostMuted = !conns[id].hostMuted;
+            conns[id].conn.send({ type: 'mute-cmd', status: conns[id].hostMuted });
+            updateUsers();
+        };
+
+        window.muteAll = (status) => {
+            Object.keys(conns).forEach(id => {
+                conns[id].hostMuted = status;
+                conns[id].conn.send({ type: 'mute-cmd', status: status });
+            });
+            updateUsers();
+        };
+
+        function broadcast(d, skip = null) { Object.keys(conns).forEach(id => { if(id !== skip) conns[id].conn.send(d); }); }
 
         function updateUsers() {
             list.innerHTML = `<div class="user-item"><b>${myName} (You)</b></div>`;
-            Object.keys(conns).forEach(id => list.innerHTML += `<div class="user-item">${conns[id].name}</div>`);
+            Object.keys(conns).forEach(id => {
+                const btn = isHost ? `<button class="btn-sm ${conns[id].hostMuted ? 'btn-unmute':'btn-mute'}" onclick="toggleUserMute('${id}')">${conns[id].hostMuted ? 'UNMUTE':'MUTE'}</button>` : '';
+                list.innerHTML += `<div class="user-item"><span>${conns[id].name}</span>${btn}</div>`;
+            });
         }
 
+        const send = () => {
+            const t = document.getElementById('msg-input').value;
+            if(!t.trim() && !pendingFile) return;
+            if(pendingFile) pendingFile.locked = document.getElementById('lock-download').checked;
+            const d = { type: 'msg', user: myName, text: t, file: pendingFile };
+            addMsg("You", t, pendingFile);
+            if(isHost) broadcast(d); else if(Object.keys(conns).length) Object.values(conns)[0].conn.send(d);
+            document.getElementById('msg-input').value = ""; clearFile();
+        };
+
+        document.getElementById('btn-send').onclick = send;
+        document.getElementById('msg-input').onkeydown = (e) => { if(e.key === 'Enter') send(); };
+        document.getElementById('file-input').onchange = (e) => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = () => { pendingFile = { name: f.name, type: f.type, blob: r.result }; document.getElementById('file-preview-area').style.display='block'; document.getElementById('file-name-display').innerText=f.name; };
+            r.readAsArrayBuffer(f);
+        };
+        function clearFile() { pendingFile = null; document.getElementById('file-preview-area').style.display='none'; }
+        function show(id) { document.querySelectorAll('.overlay .card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
         document.getElementById('btn-host-view').onclick = () => { myName = document.getElementById('username').value; if(myName) show('step-host-config'); };
-        document.getElementById('btn-go-to-mode').onclick = () => { const t = document.getElementById('chat-name-input').value; if(t) document.getElementById('chat-brand-name').innerText = t; show('step-mode'); };
+        document.getElementById('btn-go-to-mode').onclick = () => show('step-mode');
         document.getElementById('btn-join-view').onclick = () => { myName = document.getElementById('username').value; if(myName) show('step-join'); };
         document.getElementById('mode-chat').onclick = () => start(true, 'chat');
         document.getElementById('mode-voice').onclick = () => start(true, 'voice');
         document.getElementById('btn-connect').onclick = () => { myName = document.getElementById('username').value; start(false, null, document.getElementById('target-id').value); };
-
-        document.getElementById('btn-send').onclick = () => {
-            const t = document.getElementById('msg-input').value;
-            if(!t.trim() && !pendingFile) return;
-            const d = { type: 'msg', user: myName, text: t, file: pendingFile };
-            addMsg("You", t, pendingFile);
-            if(isHost) broadcast(d); 
-            else if(Object.keys(conns).length) conns[Object.keys(conns)[0]].conn.send(d);
-            document.getElementById('msg-input').value = ""; clearFile();
-        };
-
-        document.getElementById('file-input').onchange = (e) => {
-            const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader();
-            r.onload = () => {
-                pendingFile = { name: f.name, type: f.type, blob: r.result };
-                document.getElementById('file-preview-area').style.display = 'block';
-                document.getElementById('file-name-display').innerText = "Selected: " + f.name;
-            };
-            r.readAsArrayBuffer(f);
-        };
-
-        function clearFile() { pendingFile = null; document.getElementById('file-preview-area').style.display = 'none'; document.getElementById('file-input').value = ""; }
-        function show(id) { document.querySelectorAll('.overlay .card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-        document.getElementById('btn-copy').onclick = () => { 
-            navigator.clipboard.writeText(document.getElementById('room-id-txt').innerText); 
-            const b = document.getElementById('btn-copy'); b.innerText = "DONE"; setTimeout(()=>b.innerText="COPY", 2000);
-        };
+        document.getElementById('btn-copy').onclick = () => { navigator.clipboard.writeText(document.getElementById('room-id-txt').innerText); };
     </script>
 </body>
 </html>
