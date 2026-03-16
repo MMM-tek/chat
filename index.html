@@ -184,16 +184,32 @@
             chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
         }
 
-        async function startVoice(tid = null) {
-            try {
-                myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                document.getElementById('voice-indicator').style.display = 'block';
-                if (!isHost && tid) {
-                    const call = peer.call(tid, myStream);
-                    call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
-                }
-            } catch (e) { sys("Microphone access denied."); }
+async function startVoice(tid = null) {
+    try {
+        myStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        document.getElementById('voice-indicator').style.display = 'block';
+
+        // OCULTAR CHAT Y MOSTRAR INTERFAZ DE VOZ
+        document.getElementById('chat-area').innerHTML = `
+            <div class="voice-only-view">
+                <div class="avatar-circle">🎤</div>
+                <h2 style="color:var(--text)">Voice Call Active</h2>
+                <p style="color:#5f6368">Microphone is ON. Others can hear you.</p>
+            </div>
+        `;
+        // Escondemos el panel de escribir y adjuntar
+        document.querySelector('.input-p').style.display = 'none';
+        document.getElementById('file-preview-area').style.display = 'none';
+
+        if (!isHost && tid) {
+            const call = peer.call(tid, myStream);
+            call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
         }
+    } catch (e) { 
+        sys("Microphone access denied. You can only listen."); 
+    }
+}
+
 
         function start(host, m, tid = null) {
             isHost = host; mode = m;
