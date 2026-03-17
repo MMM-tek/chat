@@ -10,7 +10,7 @@
         :root { --bg: #0b0e11; --card: #15191c; --accent: #007bff; --danger: #f44336; --success: #4caf50; --border: #2d3339; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #e1e1e1; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
-        
+
         .overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .card { background: var(--card); padding: 2.5rem; border-radius: 16px; text-align: center; width: 340px; border: 1px solid var(--border); }
         input { background: #1c2126; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; width: 90%; margin-bottom: 1rem; outline: none; }
@@ -28,8 +28,9 @@
 
         #controls { padding: 1rem; background: var(--card); display: flex; gap: 12px; align-items: center; border-top: 1px solid var(--border); }
         .btn-round { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #2d3339; color: white; flex-shrink: 0; font-size: 1.2rem; }
-        
-        #file-preview { padding: 10px 20px; background: #1c2126; border-top: 1px solid var(--border); font-size: 0.8rem; display: flex; justify-content: space-between; }
+
+        #file-preview { padding: 10px 20px; background: #1c2126; border-top: 1px solid var(--border); font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+        #file-image { max-width: 100px; max-height: 100px; margin-left: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -80,6 +81,7 @@
                 <div id="chat-area"></div>
                 <div id="file-preview" class="hidden">
                     <span id="file-name-info"></span>
+                    <img id="file-image" src="" alt="File Preview">
                     <button onclick="clearFile()" style="width:auto; background:none; color:var(--danger); padding:0;">[Cancel]</button>
                 </div>
                 <div id="controls">
@@ -101,7 +103,15 @@
         function resetApp() {
             Object.values(conns).forEach(c => c.conn.close());
             if(peer) peer.destroy();
-            location.reload(); // Recarga limpia para asegurar nueva sesión
+            location.reload(); // Regenerate a clean start for a new session
+        }
+
+        function toggleSelfMute() {
+            const button = document.getElementById('btn-self-mute');
+            if (myStream) {
+                myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
+                button.innerText = myStream.getAudioTracks()[0].enabled ? "Mic: ON" : "Mic: OFF";
+            }
         }
 
         function start(host, m, tid = null) {
@@ -124,7 +134,7 @@
 
             peer.on('connection', handle);
             peer.on('call', async call => {
-                const s = await navigator.mediaDevices.getUserMedia({audio:true});
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
                 call.answer(s);
                 call.on('stream', rs => document.getElementById('remote-audio').srcObject = rs);
             });
@@ -203,13 +213,29 @@
             const r = new FileReader();
             r.onload = () => {
                 pendingFile = { name: f.name, type: f.type, blob: r.result };
-                document.getElementById('file-preview').classList.remove('hidden');
+
                 document.getElementById('file-name-info').innerText = "Ready: " + f.name;
+                
+                // Preview the image if the file type is an image
+                if(f.type.startsWith('image/')) {
+                    const img = document.getElementById('file-image');
+                    img.src = URL.createObjectURL(f);
+                    img.style.display = 'block';
+                } else {
+                    document.getElementById('file-image').style.display = 'none';
+                }
+
+                document.getElementById('file-preview').classList.remove('hidden');
             };
             r.readAsArrayBuffer(f);
         };
 
-        function clearFile() { pendingFile = null; document.getElementById('file-preview').classList.add('hidden'); }
+        function clearFile() { 
+            pendingFile = null; 
+            document.getElementById('file-preview').classList.add('hidden'); 
+            document.getElementById('file-image').style.display = 'none'; 
+        }
+        
         document.getElementById('btn-send').onclick = send;
         document.getElementById('btn-host-view').onclick = () => show('step-host-config');
         document.getElementById('btn-join-view').onclick = () => show('step-join');
@@ -217,6 +243,7 @@
         document.getElementById('mode-voice').onclick = () => start(true, 'voice');
         document.getElementById('btn-connect').onclick = () => start(false, null, document.getElementById('target-id').value);
         function show(id) { document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
     </script>
 </body>
 </html>
